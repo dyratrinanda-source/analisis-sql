@@ -1,0 +1,96 @@
+
+### Q1. Berapa lama tiap jenis layanan selesai? (CTE + agregasi)  (8 baris)
+jenis_layanan | jumlah_selesai | rata_rata_hari | tercepat_hari | terlama_hari
+Pendirian PT PMA | 27 | 25.4 | 12 | 47
+Pembubaran PT | 17 | 19.2 | 9 | 31
+Akta Jual Beli Saham | 34 | 18.6 | 8 | 46
+Pendirian PT (Lokal) | 69 | 17.7 | 5 | 48
+Akta Cabang | 15 | 17.2 | 9 | 29
+Perubahan Akta Terbit SK | 52 | 15.9 | 6 | 39
+Perjanjian Jual Beli Saham | 23 | 14.4 | 5 | 35
+Pendirian CV | 65 | 11.9 | 3 | 39
+
+### Q2. Tahap mana yang paling lama? (LAG: selisih waktu antar tahap)  (5 baris)
+step | nama_tahap | jumlah_data | rata_rata_hari | porsi_dari_total_persen
+6 | Dokumen Selesai | 302 | 7.3 | 43.8
+5 | Pendaftaran Kemenkumham | 302 | 2.8 | 16.9
+4 | Penandatangan Akta | 302 | 2.5 | 14.7
+3 | Pembuatan Draft Akta | 302 | 2.3 | 13.8
+2 | Verifikasi Syarat Dokumen | 302 | 1.8 | 10.9
+
+### Q3. Tahap penghambat utama untuk SETIAP layanan (LAG + RANK)  (8 baris)
+jenis_layanan | tahap_terlama | rata_rata_hari
+Pendirian PT PMA | Dokumen Selesai | 12.8
+Pembubaran PT | Dokumen Selesai | 10.6
+Pendirian PT (Lokal) | Dokumen Selesai | 8.2
+Akta Cabang | Dokumen Selesai | 7.9
+Perubahan Akta Terbit SK | Dokumen Selesai | 7.5
+Akta Jual Beli Saham | Dokumen Selesai | 6.0
+Pendirian CV | Dokumen Selesai | 5.0
+Perjanjian Jual Beli Saham | Pendaftaran Kemenkumham | 4.4
+
+### Q4. Pengajuan aktif yang "diam" lebih dari 7 hari (ROW_NUMBER)  (7 baris)
+nomor_tiket | jenis_layanan | tahap_terakhir | hari_tidak_bergerak
+TKT-260903-0021 | Pendirian PT (Lokal) | Pendaftaran Kemenkumham | 19
+TKT-260907-0271 | Akta Jual Beli Saham | Pendaftaran Kemenkumham | 14
+TKT-260912-0024 | Perubahan Akta Terbit SK | Pendaftaran Kemenkumham | 12
+TKT-260829-0104 | Pembubaran PT | Pendaftaran Kemenkumham | 11
+TKT-260919-0139 | Pendirian CV | Pengajuan dan Berkas Diterima | 11
+TKT-260912-0202 | Perubahan Akta Terbit SK | Pendaftaran Kemenkumham | 11
+TKT-260912-0212 | Pendirian PT (Lokal) | Pendaftaran Kemenkumham | 10
+
+### Q5a. Pola konsultasi: hari apa paling ramai?  (5 baris)
+hari | jumlah_konsultasi | persen
+Selasa | 101 | 24.0
+Kamis | 96 | 22.9
+Jumat | 91 | 21.7
+Rabu | 81 | 19.3
+Senin | 51 | 12.1
+
+### Q5b. Pola konsultasi: jam berapa paling ramai?  (7 baris)
+jam_mulai | jumlah_konsultasi | persen
+14 | 101 | 24.0
+10 | 94 | 22.4
+15 | 57 | 13.6
+9 | 48 | 11.4
+16 | 48 | 11.4
+11 | 38 | 9.0
+13 | 34 | 8.1
+
+### Q6. Jadwal konsultasi yang bentrok (SELF JOIN: jadwal vs jadwal lain di hari sama)  (77 baris)
+tanggal | jadwal_a | mulai_a | selesai_a | jadwal_b | mulai_b | selesai_b
+2026-01-05 | 83 | 10:00:00 | 11:30:00 | 180 | 10:00:00 | 11:00:00
+2026-01-07 | 65 | 15:30:00 | 17:00:00 | 257 | 16:00:00 | 17:00:00
+2026-01-08 | 54 | 15:00:00 | 16:00:00 | 333 | 14:30:00 | 16:00:00
+2026-01-13 | 119 | 14:00:00 | 15:30:00 | 213 | 14:00:00 | 15:30:00
+2026-01-15 | 124 | 11:00:00 | 12:30:00 | 291 | 10:30:00 | 11:30:00
+2026-01-20 | 50 | 11:00:00 | 12:00:00 | 281 | 10:30:00 | 11:30:00
+2026-01-20 | 169 | 10:00:00 | 11:00:00 | 281 | 10:30:00 | 11:30:00
+2026-01-28 | 154 | 14:30:00 | 16:00:00 | 394 | 14:00:00 | 15:00:00
+2026-01-29 | 40 | 15:30:00 | 16:30:00 | 120 | 15:30:00 | 16:30:00
+2026-01-29 | 172 | 11:30:00 | 12:30:00 | 349 | 11:00:00 | 12:30:00
+2026-01-29 | 283 | 10:00:00 | 11:30:00 | 349 | 11:00:00 | 12:30:00
+2026-01-30 | 75 | 11:00:00 | 12:00:00 | 395 | 11:00:00 | 12:30:00
+2026-02-04 | 2 | 10:00:00 | 11:30:00 | 235 | 09:30:00 | 10:30:00
+2026-02-04 | 221 | 15:00:00 | 16:00:00 | 344 | 15:00:00 | 16:30:00
+
+### Q6b. Ringkasan: berapa persen jadwal yang terlibat bentrok?  (1 baris)
+jadwal_terlibat_bentrok | total_jadwal_aktif | persen_bentrok
+129 | 352 | 36.6
+
+### Q7. Beban kerja & kecepatan staf verifikasi  (2 baris)
+staf | dokumen_diverifikasi | porsi_beban_persen | rata_rata_jam_verifikasi | persen_perlu_perbaikan
+Staff Verifikasi 1 | 853 | 67.2 | 13.4 | 10.0
+Staff Verifikasi 2 | 417 | 32.8 | 28.0 | 17.3
+
+### Q8. Volume pengajuan per bulan & perubahan dari bulan lalu (LAG)  (9 baris)
+bulan | jumlah | bulan_lalu | perubahan_persen
+2026-01 | 32 | None | None
+2026-02 | 36 | 32 | 12.5
+2026-03 | 44 | 36 | 22.2
+2026-04 | 32 | 44 | -27.3
+2026-05 | 37 | 32 | 15.6
+2026-06 | 37 | 37 | 0.0
+2026-07 | 33 | 37 | -10.8
+2026-08 | 36 | 33 | 9.1
+2026-09 | 33 | 36 | -8.3
