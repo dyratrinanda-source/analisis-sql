@@ -1,11 +1,8 @@
--- Skema 6 tabel (disederhanakan dari migration Laravel di repo ini).
--- Sintaks portabel: jalan di MySQL 8.0+ dan SQLite 3.25+.
-
 CREATE TABLE users (
     id_user  INTEGER PRIMARY KEY,
     name     VARCHAR(100) NOT NULL,
     email    VARCHAR(100) NOT NULL,
-    role     VARCHAR(20)  NOT NULL          -- klien | staff | notaris
+    role     VARCHAR(20)  NOT NULL         
 );
 
 CREATE TABLE katalog_layanans (
@@ -21,7 +18,7 @@ CREATE TABLE jadwal_konsultasis (
     tanggal       DATE NOT NULL,
     jam_mulai     TIME NOT NULL,
     jam_selesai   TIME NOT NULL,
-    status        VARCHAR(20) NOT NULL,     -- menunggu | disetujui | selesai | ditolak
+    status        VARCHAR(20) NOT NULL,    
     FOREIGN KEY (id_user) REFERENCES users(id_user)
 );
 
@@ -30,16 +27,15 @@ CREATE TABLE pengajuans (
     id_user       INTEGER NOT NULL,
     nomor_tiket   VARCHAR(30) NOT NULL,
     jenis_layanan VARCHAR(100) NOT NULL,
-    status        VARCHAR(20) NOT NULL,     -- Aktif | Selesai
+    status        VARCHAR(20) NOT NULL,    
     created_at    DATETIME NOT NULL,
     FOREIGN KEY (id_user) REFERENCES users(id_user)
 );
 
--- Satu baris per tahap yang sudah dicentang. created_at = waktu tahap selesai.
 CREATE TABLE pengajuan_trackings (
     id_pengajuan_tracking INTEGER PRIMARY KEY,
     id_pengajuan INTEGER NOT NULL,
-    step         INTEGER NOT NULL,          -- 1..6
+    step         INTEGER NOT NULL,          
     nama_tahap   VARCHAR(60) NOT NULL,
     is_completed TINYINT NOT NULL,
     created_at   DATETIME NOT NULL,
@@ -51,7 +47,7 @@ CREATE TABLE berkas_kliens (
     id_user             INTEGER NOT NULL,
     id_pengajuan        INTEGER NOT NULL,
     jenis_dokumen       VARCHAR(50) NOT NULL,
-    status              VARCHAR(20) NOT NULL, -- Pending | Disetujui | Perlu Perbaikan
+    status              VARCHAR(20) NOT NULL, 
     created_at          DATETIME NOT NULL,
     diverifikasi_pada   DATETIME NULL,
     id_user_verifikator INTEGER NULL,
