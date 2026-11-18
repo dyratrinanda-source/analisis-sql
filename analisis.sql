@@ -1,11 +1,4 @@
--- =====================================================================
--- ANALISIS OPERASIONAL & EFISIENSI LAYANAN KANTOR NOTARIS
--- Dialek: MySQL 8.0+ (CTE & window function). Data: SIMULASI (lihat README).
--- Tanggal acuan data (snapshot): 2026-09-30
--- =====================================================================
-
--- Q1. Berapa lama tiap jenis layanan selesai? (CTE + agregasi)
-WITH durasi AS (
+-- Q1.
     SELECT p.id_pengajuan, p.jenis_layanan,
            MIN(t.created_at) AS mulai,
            MAX(t.created_at) AS selesai
@@ -23,10 +16,7 @@ FROM durasi
 GROUP BY jenis_layanan
 ORDER BY rata_rata_hari DESC;
 
-
--- Q2. Tahap mana yang paling lama? (LAG: selisih waktu antar tahap)
--- Catatan baca: angka = lama dari tahap sebelumnya sampai tahap ini tercapai.
--- Mis. 'Dokumen Selesai' = lama menunggu setelah Pendaftaran Kemenkumham sampai dokumen terbit.
+-- Q2.
 WITH tahap AS (
     SELECT t.id_pengajuan, t.step, t.nama_tahap, t.created_at,
            LAG(t.created_at) OVER (PARTITION BY t.id_pengajuan ORDER BY t.step) AS waktu_tahap_sebelumnya
@@ -48,9 +38,7 @@ FROM lama
 GROUP BY step, nama_tahap
 ORDER BY rata_rata_hari DESC;
 
-
--- Q3. Tahap penghambat utama untuk SETIAP layanan (LAG + RANK)
--- (tahap dengan waktu tunggu rata-rata terlama menuju tahap itu)
+-- Q3.
 WITH tahap AS (
     SELECT p.jenis_layanan, t.step, t.nama_tahap, t.created_at,
            LAG(t.created_at) OVER (PARTITION BY t.id_pengajuan ORDER BY t.step) AS sebelumnya
@@ -75,8 +63,7 @@ FROM peringkat
 WHERE peringkat = 1
 ORDER BY rata_hari DESC;
 
-
--- Q4. Pengajuan aktif yang "diam" lebih dari 7 hari (ROW_NUMBER)
+-- Q4.
 WITH terakhir AS (
     SELECT t.id_pengajuan, t.nama_tahap, t.created_at,
            ROW_NUMBER() OVER (PARTITION BY t.id_pengajuan ORDER BY t.step DESC) AS urutan
@@ -91,8 +78,7 @@ WHERE p.status = 'Aktif'
   AND DATEDIFF('2026-09-30', tr.created_at) > 7
 ORDER BY hari_tidak_bergerak DESC;
 
-
--- Q5a. Pola konsultasi: hari apa paling ramai?
+-- Q5.
 SELECT CASE DAYOFWEEK(tanggal)
            WHEN 2 THEN 'Senin' WHEN 3 THEN 'Selasa' WHEN 4 THEN 'Rabu'
            WHEN 5 THEN 'Kamis' WHEN 6 THEN 'Jumat' END AS hari,
@@ -102,7 +88,7 @@ FROM jadwal_konsultasis
 GROUP BY DAYOFWEEK(tanggal)
 ORDER BY jumlah_konsultasi DESC;
 
--- Q5b. Pola konsultasi: jam berapa paling ramai?
+-- Q5b.
 SELECT HOUR(jam_mulai) AS jam_mulai,
        COUNT(*) AS jumlah_konsultasi,
        ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 1) AS persen
@@ -110,8 +96,7 @@ FROM jadwal_konsultasis
 GROUP BY HOUR(jam_mulai)
 ORDER BY jumlah_konsultasi DESC;
 
-
--- Q6. Jadwal konsultasi yang bentrok (SELF JOIN: jadwal vs jadwal lain di hari sama)
+-- Q6.
 SELECT a.tanggal,
        a.id_jadwal_konsultasi AS jadwal_a, a.jam_mulai AS mulai_a, a.jam_selesai AS selesai_a,
        b.id_jadwal_konsultasi AS jadwal_b, b.jam_mulai AS mulai_b, b.jam_selesai AS selesai_b
@@ -124,7 +109,7 @@ JOIN jadwal_konsultasis b
 WHERE a.status <> 'ditolak' AND b.status <> 'ditolak'
 ORDER BY a.tanggal;
 
--- Q6b. Ringkasan: berapa persen jadwal yang terlibat bentrok?
+-- Q6b.
 WITH bentrok AS (
     SELECT a.id_jadwal_konsultasi AS id FROM jadwal_konsultasis a
     JOIN jadwal_konsultasis b
@@ -138,8 +123,7 @@ SELECT (SELECT COUNT(*) FROM bentrok) AS jadwal_terlibat_bentrok,
        ROUND(100.0 * (SELECT COUNT(*) FROM bentrok)
              / (SELECT COUNT(*) FROM jadwal_konsultasis WHERE status <> 'ditolak'), 1) AS persen_bentrok;
 
-
--- Q7. Beban kerja & kecepatan staf verifikasi
+-- Q7.
 SELECT u.name AS staf,
        COUNT(*) AS dokumen_diverifikasi,
        ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 1) AS porsi_beban_persen,
@@ -151,8 +135,7 @@ WHERE b.diverifikasi_pada IS NOT NULL
 GROUP BY u.id_user, u.name
 ORDER BY dokumen_diverifikasi DESC;
 
-
--- Q8. Volume pengajuan per bulan & perubahan dari bulan lalu (LAG)
+-- Q8.
 WITH bulanan AS (
     SELECT SUBSTRING(created_at, 1, 7) AS bulan, COUNT(*) AS jumlah
     FROM pengajuans
