@@ -1,4 +1,3 @@
--- DATA SIMULASI (fiktif). Dibuat oleh generate_data.py, seed=42.
 INSERT INTO users (id_user,name,email,role) VALUES
   (1, 'Staff Verifikasi 1', 'staff1@example.com', 'staff'),
   (2, 'Staff Verifikasi 2', 'staff2@example.com', 'staff'),
