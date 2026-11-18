@@ -13,12 +13,10 @@ from datetime import datetime, timedelta, date
 random.seed(42)
 SNAPSHOT = datetime(2026, 9, 30, 17, 0)
 
-# ---------------- PARAMETER ----------------
 TAHAP = {1: "Pengajuan dan Berkas Diterima", 2: "Verifikasi Syarat Dokumen",
          3: "Pembuatan Draft Akta", 4: "Penandatangan Akta",
          5: "Pendaftaran Kemenkumham", 6: "Dokumen Selesai"}
 
-# layanan: (bobot, rata-rata hari antar tahap 1->2, 2->3, 3->4, 4->5, 5->6)
 LAYANAN = {
     "Pendirian PT (Lokal)":        (0.25, [1.5, 2.0, 2.5, 2.0, 8.0]),
     "Pendirian PT PMA":            (0.08, [2.0, 3.0, 3.0, 3.0, 14.0]),
@@ -38,14 +36,13 @@ KATALOG = ["Pendirian PT (Lokal)", "Pendirian PT PMA", "Pendirian CV", "Pendiria
     "Penonaktifan PT", "Akta Jual Beli Saham", "Perjanjian Jual Beli Saham", "Buka Blokir",
     "Akta Perubahan PT Perorangan ke PT Biasa", "Akta Cabang"]
 N_KLIEN, N_PENGAJUAN, N_JADWAL = 120, 320, 420
-P_TERTAHAN = 0.07          # peluang pengajuan tertahan (berkas klien kurang)
+P_TERTAHAN = 0.07        
 DOKUMEN = ["KTP", "NPWP", "KK", "Akta Pendirian", "SK Kemenkumham", "Surat Kuasa"]
-VERIFIKATOR_BOBOT = {1: 0.65, 2: 0.35}          # staff 1 menerima 65% dokumen
-VERIFIKATOR_JAM = {1: 14.0, 2: 30.0}            # rata-rata jam verifikasi
+VERIFIKATOR_BOBOT = {1: 0.65, 2: 0.35}      
+VERIFIKATOR_JAM = {1: 14.0, 2: 30.0}          
 P_REVISI = {1: 0.10, 2: 0.17}
-# -------------------------------------------
 
-def pilih(d):  # d: {item: bobot}
+def pilih(d):  
     r, acc = random.random() * sum(d.values()), 0
     for k, v in d.items():
         acc += v
@@ -61,7 +58,6 @@ def dt(x): return x.strftime("%Y-%m-%d %H:%M:%S")
 
 rows = {t: [] for t in ["users", "katalog", "jadwal", "pengajuan", "tracking", "berkas"]}
 
-# users
 rows["users"] += [(1, "Staff Verifikasi 1", "staff1@example.com", "staff"),
                   (2, "Staff Verifikasi 2", "staff2@example.com", "staff"),
                   (3, "Notaris", "notaris@example.com", "notaris")]
@@ -70,7 +66,6 @@ for i in range(N_KLIEN):
 klien_ids = [4 + i for i in range(N_KLIEN)]
 for i, n in enumerate(KATALOG, 1): rows["katalog"].append((i, n))
 
-# pengajuan, tracking, berkas
 tid = bid = 0
 awal, akhir = datetime(2026, 1, 5, 9), datetime(2026, 9, 27, 16)
 for pid in range(1, N_PENGAJUAN + 1):
@@ -105,7 +100,6 @@ for pid in range(1, N_PENGAJUAN + 1):
         else:
             rows["berkas"].append((bid, uid, pid, d, "Pending", dt(up), None, None))
 
-# jadwal konsultasi: Selasa & Kamis lebih ramai, jam 10 dan 14 paling ramai
 hari_w = {0: .13, 1: .24, 2: .17, 3: .24, 4: .22}
 jam_w = {9: .10, 10: .24, 11: .10, 13: .10, 14: .24, 15: .13, 16: .09}
 for jid in range(1, N_JADWAL + 1):
